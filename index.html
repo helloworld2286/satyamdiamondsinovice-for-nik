@@ -1,4 +1,6 @@
-<html lang="en"><head>
+<!doctype html>
+<html lang="en">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -45,6 +47,12 @@
     .paper-stage { width:816px; min-height:0; margin:0 auto; }
     .paper-wrap { width:816px; filter:drop-shadow(0 12px 25px #32465a2e); transform-origin:top left; }
     .invoice-sheet { width:816px; min-height:0; overflow:hidden; padding:24px; background:var(--paper); color:#0a0a0a; font-family:Arial, Helvetica, sans-serif; font-size:13px; }
+    /* Keep the scaled paper preview typographically consistent on iOS.
+       Scope this to the document so editor accessibility and pinch zoom remain intact. */
+    .invoice-sheet, .invoice-sheet * {
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
+    }
     .invoice-border { border:2px solid var(--line); }
     .company-head { height:123px; padding:6px 12px; text-align:center; font-family:Arial, Helvetica, sans-serif; font-weight:700; }
     .company-head h2 { margin:0 0 2px; font-size:25px; overflow-wrap:anywhere; }
@@ -139,11 +147,11 @@
       .invoice-border { min-height:0; }
     }
   </style>
-<style>undefined</style><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="use-credentials"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@200;300;400;500;600;700;800;900&amp;display=swa"></head>
-<body data-new-gr-c-s-check-loaded="14.1151.0" data-gr-ext-installed="">
+</head>
+<body>
   <header class="appbar">
     <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 24 20 9h24l12 15-24 32z" fill="#b8d5ec" stroke="#fff" stroke-width="3"></path><path d="M8 24h48M20 9l12 47L44 9M20 24 32 9l12 15" fill="none" stroke="#fff" stroke-width="2"></path></svg>
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 24 20 9h24l12 15-24 32z" fill="#b8d5ec" stroke="#fff" stroke-width="3"/><path d="M8 24h48M20 9l12 47L44 9M20 24 32 9l12 15" fill="none" stroke="#fff" stroke-width="2"/></svg>
       <div><h1>SATYAM DIAMOND Invoice Generator</h1><p>Edit the details and save a matching invoice as PDF</p></div>
     </div>
     <div class="actions">
@@ -161,7 +169,7 @@
   <main class="workspace">
     <aside class="editor" aria-label="Invoice editor">
       <p class="intro">Changes appear instantly in the invoice preview.</p>
-      <details open="">
+      <details open>
         <summary>Invoice details</summary>
         <div class="fields">
           <div class="field"><label for="invoiceNo">Invoice number</label><input id="invoiceNo" data-key="invoiceNo"></div>
@@ -171,7 +179,7 @@
           <div class="field"><label for="taxRate">IGST rate (%)</label><input id="taxRate" data-key="taxRate" type="number" min="0" step="0.01"></div>
         </div>
       </details>
-      <details open="">
+      <details open>
         <summary>Bill to party</summary>
         <div class="fields">
           <div class="field wide"><label for="billName">Name</label><input id="billName" data-key="billName"></div>
@@ -181,7 +189,7 @@
           <div class="field"><label for="billCountry">Country</label><input id="billCountry" data-key="billCountry"></div>
         </div>
       </details>
-      <details open="">
+      <details open>
         <summary>Ship to party</summary>
         <div class="fields">
           <div class="field wide"><label for="shipName">Name</label><input id="shipName" data-key="shipName"></div>
@@ -191,11 +199,9 @@
           <div class="field"><label for="shipCode">Code</label><input id="shipCode" data-key="shipCode"></div>
         </div>
       </details>
-      <details open="">
+      <details open>
         <summary>Products</summary>
-        <div class="fields" id="itemFields"><div class="item-card"><div class="item-title"><span>Product 1</span></div><div class="item-grid"><div class="field wide"><label>Description</label><textarea data-item="0" data-prop="description">10K Gold Jewellery Studded with Diamonds
-2.67 carats and Net Gold
-3.900 Gms</textarea></div><div class="field"><label>HSN code</label><input data-item="0" data-prop="hsn" value="711319"></div><div class="field"><label>Quantity / grams</label><input type="number" min="0" step="0.001" data-item="0" data-prop="qty" value="4.410"></div><div class="field"><label>Rate</label><input type="number" min="0" step="0.01" data-item="0" data-prop="rate" value="9783.13"></div><div class="field"><label>Discount amount</label><input type="number" min="0" step="0.01" data-item="0" data-prop="discount" value="0"></div></div></div><button class="add-item" id="addItem" type="button">+ Add another product</button></div>
+        <div class="fields" id="itemFields"></div>
       </details>
       <details>
         <summary>Company and bank details</summary>
@@ -212,62 +218,57 @@
     </aside>
 
     <section class="preview-area" aria-label="Invoice preview">
-      <div class="paper-stage" id="paperStage" style="width: 204px; height: 0px;">
-      <div class="paper-wrap" id="paperWrap" style="transform: scale(0.25);">
+      <div class="paper-stage" id="paperStage">
+      <div class="paper-wrap" id="paperWrap">
         <article class="invoice-sheet" id="invoiceSheet">
           <div class="invoice-border">
             <section class="company-head">
-              <h2 data-out="companyName">SATYAM DIAMOND</h2>
-              <p data-out="companyAddress">3rd, 314, MAVANI SHOPPING CENTER, MINI BAZAR, VARACHHA ROAD,SURAT-395006</p>
-              <p>Tel: <span data-out="companyPhone">+91 9714520004</span></p>
-              <p>GSTIN: <span data-out="companyGstin">24AENFS2640R1ZE</span></p>
+              <h2 data-out="companyName"></h2>
+              <p data-out="companyAddress"></p>
+              <p>Tel: <span data-out="companyPhone"></span></p>
+              <p>GSTIN: <span data-out="companyGstin"></span></p>
             </section>
             <div class="rule-gap"></div>
             <div class="invoice-title">INVOICE</div>
             <section class="two-col">
-              <div class="meta-row"><div>Invoice No: <span data-out="invoiceNo">E5-26-27/69</span></div><div>State: <span data-out="sellerState">GUJRAT</span></div></div>
-              <div class="meta-row"><div>Date of Issue: <span data-out="issueDate">25-08-2026</span></div><div>State Code:<span data-out="sellerStateCode">24</span></div></div>
+              <div class="meta-row"><div>Invoice No: <span data-out="invoiceNo"></span></div><div>State: <span data-out="sellerState"></span></div></div>
+              <div class="meta-row"><div>Date of Issue: <span data-out="issueDate"></span></div><div>State Code:<span data-out="sellerStateCode"></span></div></div>
             </section>
             <section class="party-grid">
               <div class="party">
                 <h3>Bill to Party</h3>
-                <div class="party-main" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">Name: <span data-out="billName" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">16724094 CANADA INC.</span><br>Address: <span data-out="billAddress" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">8751 COLLIN MCKINNEY PARKWAY,MCKINNEY, TX 75070
-C:-(+1)-226-637-2286</span></div>
-                <div class="party-tax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">GSTIN/HST: <span data-out="billTax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">#719976227RT0001</span></div>
-                <div class="party-state" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">State: <span data-out="billState" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">ON</span><br>COUNTRY: <span data-out="billCountry" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">CANADA</span></div>
+                <div class="party-main">Name: <span data-out="billName"></span><br>Address: <span data-out="billAddress"></span></div>
+                <div class="party-tax">GSTIN/HST: <span data-out="billTax"></span></div>
+                <div class="party-state">State: <span data-out="billState"></span><br>COUNTRY: <span data-out="billCountry"></span></div>
               </div>
               <div class="party">
                 <h3>Ship to Party</h3>
-                <div class="party-main" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">Name: <span data-out="shipName" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">JAKERION WARE</span><br>Address: <span data-out="shipAddress" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">4756 WINE RIDGE LN
-BIRMINGHAM, AL 35244-2430
-UNITED STATES</span></div>
-                <div class="party-tax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">GSTIN: <span data-out="shipTax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;"></span></div>
-                <div class="party-state" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">COUNTRY: <span data-out="shipCountry" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">USA</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Code <span data-out="shipCode" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;"></span></div>
+                <div class="party-main">Name: <span data-out="shipName"></span><br>Address: <span data-out="shipAddress"></span></div>
+                <div class="party-tax">GSTIN: <span data-out="shipTax"></span></div>
+                <div class="party-state">COUNTRY: <span data-out="shipCountry"></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Code <span data-out="shipCode"></span></div>
               </div>
             </section>
             <table class="items" aria-label="Invoice items">
               <thead><tr><th class="c-num">Sr.No</th><th class="c-desc">Product Description</th><th class="c-hsn">HSN<br>Code</th><th class="c-qty">QTY GMS</th><th class="c-rate">Rate</th><th class="c-amount">Amount</th><th class="c-discount">Discount</th><th class="c-value">Value of supply</th></tr></thead>
-              <tbody id="invoiceRows"><tr class="product-row"><td class="c-num">1</td><td class="c-desc">10K Gold Jewellery Studded with Diamonds
-2.67 carats and Net Gold
-3.900 Gms</td><td class="c-hsn">711319</td><td class="c-qty">4.410</td><td class="c-rate">9783.13</td><td class="c-amount"></td><td class="c-discount"></td><td class="c-value">43143.60</td></tr></tbody>
+              <tbody id="invoiceRows"></tbody>
               <tbody>
                 <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                 <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                 <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                 <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr class="summary-row"><td></td><td></td><td></td><td></td><td></td><td>Amount</td><td></td><td class="c-value" id="subtotalOut">43143.60</td></tr>
-                <tr class="summary-row"><td></td><td></td><td></td><td></td><td></td><td>Add:</td><td>IGST</td><td class="c-value" id="taxOut">1294.31</td></tr>
-                <tr class="summary-row"><td></td><td colspan="1">Rounding Off</td><td></td><td></td><td></td><td></td><td></td><td class="c-value" id="roundingOut">0.09</td></tr>
-                <tr class="total-row"><td colspan="3" class="total-label">TOTAL</td><td class="c-qty" id="qtyOut">4.410</td><td></td><td></td><td></td><td class="c-value" id="totalOut">44438.00</td></tr>
+                <tr class="summary-row"><td></td><td></td><td></td><td></td><td></td><td>Amount</td><td></td><td class="c-value" id="subtotalOut"></td></tr>
+                <tr class="summary-row"><td></td><td></td><td></td><td></td><td></td><td>Add:</td><td>IGST</td><td class="c-value" id="taxOut"></td></tr>
+                <tr class="summary-row"><td></td><td colspan="1">Rounding Off</td><td></td><td></td><td></td><td></td><td></td><td class="c-value" id="roundingOut"></td></tr>
+                <tr class="total-row"><td colspan="3" class="total-label">TOTAL</td><td class="c-qty" id="qtyOut"></td><td></td><td></td><td></td><td class="c-value" id="totalOut"></td></tr>
               </tbody>
             </table>
-            <div class="words">Total&nbsp; Invoice Amount&nbsp; (In words)&nbsp; :&nbsp; <span id="wordsOut">Forty Four Thousand Four Hundred Thirty Eight Rupees Only</span></div>
+            <div class="words">Total&nbsp; Invoice Amount&nbsp; (In words)&nbsp; :&nbsp; <span id="wordsOut"></span></div>
             <section class="footer">
               <div class="bank">
                 <div class="bank-cap"></div>
-                <p>Bank Name :&nbsp; <span data-out="bankName">AXIS BANK LTD</span></p>
-                <p>Bank A/C: <span data-out="bankAccount">921020046798361</span></p>
-                <p>Bank IFSC: <span data-out="bankIfsc">UTIB0000848</span></p>
+                <p>Bank Name :&nbsp; <span data-out="bankName"></span></p>
+                <p>Bank A/C: <span data-out="bankAccount"></span></p>
+                <p>Bank IFSC: <span data-out="bankIfsc"></span></p>
               </div>
               <div class="cert">
                 <div class="cert-note">Certified that the particular given above are true and correct</div>
@@ -284,8 +285,8 @@ UNITED STATES</span></div>
   <script>
     const sample = {
       invoiceNo:'E5-26-27/69', issueDate:'25-08-2026', sellerState:'GUJRAT', sellerStateCode:'24', taxRate:'3',
-      billName:'NIK DIAMOND & JEWELRY LLC', billAddress:'8751 COLLIN MCKINNEY PARKWAY, \n MCKINNEY, TX 75070', billTax:'', billState:'', billCountry:'',
-      shipName:'DAVID JOVANCHEVICH', shipAddress:'114 RUE JOSEPH-BRESSE #4\n CHAMBLY,QC J3L 5S8,\nCANADA', shipTax:'', shipCountry:'Canada', shipCode:'',
+      billName:'16724094 CANADA INC.', billAddress:'316, CONWAY DR. LONDON ON, N6E 3J8\nC:-(+1)-226-637-2286', billTax:'#719976227RT0001', billState:'ON', billCountry:'CANADA',
+      shipName:'JAKERION WARE', shipAddress:'4756 WINE RIDGE LN\nBIRMINGHAM, AL 35244-2430\nUNITED STATES', shipTax:'', shipCountry:'USA', shipCode:'',
       companyName:'SATYAM DIAMOND', companyAddress:'3rd, 314, MAVANI SHOPPING CENTER, MINI BAZAR, VARACHHA ROAD,SURAT-395006', companyPhone:'+91 9714520004', companyGstin:'24AENFS2640R1ZE',
       bankName:'AXIS BANK LTD', bankAccount:'921020046798361', bankIfsc:'UTIB0000848',
       items:[{description:'10K Gold Jewellery Studded with Diamonds\n2.67 carats and Net Gold\n3.900 Gms', hsn:'711319', qty:'4.410', rate:'9783.13', discount:'0'}]
@@ -425,6 +426,5 @@ UNITED STATES</span></div>
     window.addEventListener('beforeprint',fitInvoiceText);
     populate();
   </script>
-
-
-</body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"></grammarly-desktop-integration></html>
+</body>
+</html>
