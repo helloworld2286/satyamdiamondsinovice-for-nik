@@ -1,0 +1,430 @@
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="description" content="Create and print SATYAM DIAMOND invoices in the original invoice format.">
+  <title>SATYAM DIAMOND Invoice Generator</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230d2238'/%3E%3Cpath d='M12 25l9-11h22l9 11-20 26z' fill='%23b8d5ec' stroke='%23fff' stroke-width='3'/%3E%3Cpath d='M12 25h40M21 14l11 37 11-37M21 25l11-11 11 11' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+  <style>
+    :root { --ink:#101820; --navy:#10263d; --blue:#bdd8ee; --blue-strong:#8fb8d8; --line:#111; --paper:#fff; --bg:#edf2f6; --muted:#64748b; --focus:#1671b9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 Arial, Helvetica, sans-serif; }
+    button, input, textarea, select { font:inherit; }
+    button { cursor:pointer; }
+    .appbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:14px 22px; color:#fff; background:var(--navy); box-shadow:0 2px 12px #0f22384a; }
+    .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+    .brand-mark { width:38px; height:38px; flex:0 0 auto; }
+    .brand h1 { margin:0; font-size:1.05rem; letter-spacing:.02em; }
+    .brand p { margin:1px 0 0; color:#c9d7e4; font-size:.78rem; }
+    .actions { display:flex; gap:9px; }
+    .btn { border:1px solid transparent; border-radius:8px; min-height:42px; padding:9px 15px; font-weight:700; }
+    .btn-primary { background:#fff; color:var(--navy); }
+    .btn-download { background:#b8d5ec; color:#0d2238; }
+    .btn-secondary { color:#fff; background:#ffffff15; border-color:#ffffff40; }
+    .workspace { display:grid; grid-template-columns:minmax(350px, 430px) minmax(720px, 1fr); min-height:calc(100vh - 68px); }
+    .editor { height:calc(100vh - 68px); overflow:auto; padding:18px; background:#fff; border-right:1px solid #cad4dd; }
+    .intro { margin:0 0 15px; color:var(--muted); font-size:.9rem; }
+    details { margin:0 0 10px; border:1px solid #d9e1e8; border-radius:10px; background:#fbfcfd; overflow:hidden; }
+    summary { padding:13px 14px; font-weight:800; color:var(--navy); cursor:pointer; user-select:none; }
+    .fields { display:grid; grid-template-columns:1fr 1fr; gap:11px; padding:2px 14px 15px; }
+    .field { min-width:0; }
+    .field.wide { grid-column:1 / -1; }
+    label { display:block; margin:0 0 4px; color:#394b5d; font-size:.8rem; font-weight:700; }
+    input, textarea, select { width:100%; border:1px solid #bcc9d4; border-radius:7px; padding:9px 10px; color:#102030; background:#fff; }
+    textarea { min-height:72px; resize:vertical; }
+    input:focus, textarea:focus, select:focus { outline:3px solid #1681ce26; border-color:var(--focus); }
+    .item-card { grid-column:1/-1; padding:11px; border:1px solid #d2dbe3; border-radius:8px; background:#fff; }
+    .item-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .item-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; color:var(--navy); font-weight:800; }
+    .remove { border:0; color:#a72c2c; background:transparent; font-weight:700; font-size:.78rem; }
+    .add-item { grid-column:1/-1; width:100%; border:1px dashed #7691a9; border-radius:8px; padding:9px; color:var(--navy); background:#eef5fa; font-weight:800; }
+    .mobile-tabs { display:none; }
+    .preview-area { align-self:start; overflow:auto; padding:28px; background:radial-gradient(circle at top, #f7fafc 0, #e7edf2 70%); }
+    .paper-stage { width:816px; min-height:0; margin:0 auto; }
+    .paper-wrap { width:816px; filter:drop-shadow(0 12px 25px #32465a2e); transform-origin:top left; }
+    .invoice-sheet { width:816px; min-height:0; overflow:hidden; padding:24px; background:var(--paper); color:#0a0a0a; font-family:Arial, Helvetica, sans-serif; font-size:13px; }
+    .invoice-border { border:2px solid var(--line); }
+    .company-head { height:123px; padding:6px 12px; text-align:center; font-family:Arial, Helvetica, sans-serif; font-weight:700; }
+    .company-head h2 { margin:0 0 2px; font-size:25px; overflow-wrap:anywhere; }
+    .company-head p { margin:5px 0; font-size:15px; overflow-wrap:anywhere; }
+    .rule-gap { height:13px; border-top:2px solid; border-bottom:2px solid; }
+    .invoice-title { padding:4px; border-bottom:2px solid; background:var(--blue); text-align:center; font-size:27px; font-weight:900; letter-spacing:.02em; }
+    .two-col { display:grid; grid-template-columns:3fr 1.45fr; }
+    .meta-row { display:contents; }
+    .meta-row > div { min-height:27px; padding:3px 5px; border-bottom:2px solid; overflow-wrap:anywhere; font-weight:700; }
+    .meta-row > div:first-child { border-right:2px solid; }
+    .party-grid { display:grid; grid-template-columns:3fr 2.06fr; border-bottom:2px solid; }
+    .party { min-width:0; }
+    .party:first-child { border-right:2px solid; }
+    .party h3 { margin:0; padding:3px 5px; border-bottom:2px solid; background:var(--blue); text-align:center; font-size:14px; }
+    .party-main { height:89px; overflow:hidden; padding:3px 5px; white-space:pre-line; overflow-wrap:anywhere; font-size:11px; line-height:1.3; font-weight:700; }
+    .party-tax { min-height:27px; overflow:hidden; padding:3px 5px; border-top:2px solid; overflow-wrap:anywhere; font-size:11px; line-height:1.3; font-weight:700; }
+    .party-state { min-height:43px; overflow:hidden; padding:3px 5px; border-top:2px solid; white-space:pre-line; overflow-wrap:anywhere; font-size:11px; line-height:1.3; font-weight:700; }
+    .party-main, .party-tax, .party-state,
+    .party-main span, .party-tax span, .party-state span {
+      font-family:Arial, Helvetica, sans-serif !important;
+      font-size:11px !important;
+      line-height:1.3 !important;
+      font-weight:700 !important;
+    }
+    .items { width:100%; border-collapse:collapse; table-layout:fixed; }
+    .items th, .items td { border-right:2px solid; border-bottom:2px solid; padding:4px 3px; overflow:hidden; overflow-wrap:anywhere; vertical-align:middle; }
+    .items td { font-size:11px; }
+    .items th:last-child, .items td:last-child { border-right:0; }
+    .items th { height:43px; padding:4px 2px; background:var(--blue); text-align:center !important; vertical-align:middle; font-size:12px; line-height:1.2; }
+    .items .c-num { width:44px; text-align:center; }
+    .items .c-desc { width:232px; }
+    .items .c-hsn { width:64px; text-align:center; }
+    .items .c-qty { width:64px; text-align:center; }
+    .items .c-rate { width:67px; text-align:center; }
+    .items .c-amount { width:68px; text-align:right; }
+    .items .c-discount { width:60px; text-align:right; }
+    .items .c-value { width:165px; text-align:right; padding-right:14px; }
+    .items .c-hsn, .items .c-qty, .items .c-rate, .items .c-amount, .items .c-discount, .items .c-value { white-space:nowrap; overflow-wrap:normal; }
+    .items .product-row td { height:63px; }
+    .items .product-row .c-desc { white-space:pre-line; font-size:11px; line-height:1.35; }
+    .items .blank td { height:21px; }
+    .items .summary-row td { height:23px; }
+    .items .total-row td { height:30px; }
+    .total-label { background:#d8e8f4; text-align:center; font-size:11px; font-weight:900; }
+    .words { min-height:62px; display:flex; align-items:center; justify-content:center; padding:8px 12px; border-bottom:2px solid; text-align:center; font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:1.35; font-weight:700; }
+    .footer { display:grid; grid-template-columns:43% 57%; min-height:130px; }
+    .bank { align-self:stretch; border-right:2px solid; }
+    .bank-cap { height:17px; border-bottom:2px solid; background:#d8e8f4; }
+    .bank p { margin:0; padding:2px 5px; border-bottom:2px solid; overflow:hidden; overflow-wrap:anywhere; line-height:1.2; }
+    .cert { display:flex; flex-direction:column; align-items:center; min-height:130px; padding:4px 8px; text-align:center; font-family:Arial, Helvetica, sans-serif; }
+    .cert-note { font-size:10px; }
+    .sign-title { margin:4px 0 0; font-size:14px; font-weight:700; }
+    .signature { flex:1 1 auto; min-height:28px; margin:2px 0; }
+    .sign-label { margin-top:auto; width:100%; padding:3px; font-size:14px; font-weight:700; }
+    .signature-image { display:block; width:175px; height:auto; max-height:110px; margin:2px auto 0; object-fit:contain; }
+    .small-note { margin:14px 0 0; color:var(--muted); text-align:center; font-size:.78rem; }
+    @media (max-width:1100px) {
+      .workspace { grid-template-columns:1fr; }
+      .editor { height:auto; border-right:0; border-bottom:1px solid #cad4dd; }
+      .preview-area { overflow-x:hidden; padding:18px 8px; }
+    }
+    @media (max-width:700px) {
+      .appbar { position:relative; align-items:center; gap:8px; padding:10px 12px; }
+      .brand { gap:8px; }
+      .brand-mark { width:31px; height:31px; }
+      .brand h1 { max-width:150px; font-size:.88rem; line-height:1.15; }
+      .brand p, .btn-secondary { display:none; }
+      #printBtn { display:none; }
+      .actions { flex:0 0 auto; }
+      .btn { min-height:40px; padding:7px 10px; font-size:.78rem; }
+      .mobile-tabs { display:grid; position:sticky; top:0; z-index:19; grid-template-columns:1fr 1fr; gap:4px; padding:7px 10px; border-bottom:1px solid #c9d4de; background:#f8fafc; }
+      .mobile-tab { min-height:42px; border:0; border-radius:8px; color:#486075; background:transparent; font-weight:800; }
+      .mobile-tab.active { color:#fff; background:var(--navy); }
+      .fields { grid-template-columns:1fr; }
+      .field.wide { grid-column:auto; }
+      .item-grid { grid-template-columns:1fr; }
+      .editor { padding:12px; }
+      summary { padding:14px 12px; }
+      input, textarea, select { min-height:46px; font-size:1rem; }
+      textarea { min-height:88px; }
+      .preview-area { display:none; min-height:0; padding:12px 6px; }
+      body.show-preview .editor { display:none; }
+      body.show-preview .preview-area { display:block; }
+    }
+    @media print {
+      @page { size: Letter portrait; margin:0; }
+      body { background:#fff; }
+      .appbar, .mobile-tabs, .editor, .small-note { display:none !important; }
+      .workspace, .preview-area { display:block; margin:0; padding:0; overflow:visible; min-height:0; background:#fff; }
+      .paper-stage, .paper-wrap { width:8.5in !important; height:auto !important; min-height:0; margin:0; filter:none; transform:none !important; }
+      .invoice-sheet { width:8.5in; height:auto; min-height:0; padding:.24in; font-size:12px; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .invoice-border { min-height:0; }
+    }
+  </style>
+<style>undefined</style><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="use-credentials"><link rel="preconnect" href="https://fonts.gstatic.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mulish:wght@200;300;400;500;600;700;800;900&amp;display=swa"></head>
+<body data-new-gr-c-s-check-loaded="14.1151.0" data-gr-ext-installed="">
+  <header class="appbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 24 20 9h24l12 15-24 32z" fill="#b8d5ec" stroke="#fff" stroke-width="3"></path><path d="M8 24h48M20 9l12 47L44 9M20 24 32 9l12 15" fill="none" stroke="#fff" stroke-width="2"></path></svg>
+      <div><h1>SATYAM DIAMOND Invoice Generator</h1><p>Edit the details and save a matching invoice as PDF</p></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" id="resetBtn" type="button">Reset sample</button>
+      <button class="btn btn-primary" id="printBtn" type="button">Print / Save PDF</button>
+      <button class="btn btn-download" id="downloadBtn" type="button">Download PDF</button>
+    </div>
+  </header>
+
+  <nav class="mobile-tabs" aria-label="Mobile invoice views">
+    <button class="mobile-tab active" id="editTab" type="button">Edit invoice</button>
+    <button class="mobile-tab" id="previewTab" type="button">Preview PDF</button>
+  </nav>
+
+  <main class="workspace">
+    <aside class="editor" aria-label="Invoice editor">
+      <p class="intro">Changes appear instantly in the invoice preview.</p>
+      <details open="">
+        <summary>Invoice details</summary>
+        <div class="fields">
+          <div class="field"><label for="invoiceNo">Invoice number</label><input id="invoiceNo" data-key="invoiceNo"></div>
+          <div class="field"><label for="issueDate">Date of issue</label><input id="issueDate" data-key="issueDate" placeholder="DD-MM-YYYY"></div>
+          <div class="field"><label for="sellerState">State</label><input id="sellerState" data-key="sellerState"></div>
+          <div class="field"><label for="sellerStateCode">State code</label><input id="sellerStateCode" data-key="sellerStateCode"></div>
+          <div class="field"><label for="taxRate">IGST rate (%)</label><input id="taxRate" data-key="taxRate" type="number" min="0" step="0.01"></div>
+        </div>
+      </details>
+      <details open="">
+        <summary>Bill to party</summary>
+        <div class="fields">
+          <div class="field wide"><label for="billName">Name</label><input id="billName" data-key="billName"></div>
+          <div class="field wide"><label for="billAddress">Address and phone</label><textarea id="billAddress" data-key="billAddress"></textarea></div>
+          <div class="field wide"><label for="billTax">GSTIN / HST</label><input id="billTax" data-key="billTax"></div>
+          <div class="field"><label for="billState">State</label><input id="billState" data-key="billState"></div>
+          <div class="field"><label for="billCountry">Country</label><input id="billCountry" data-key="billCountry"></div>
+        </div>
+      </details>
+      <details open="">
+        <summary>Ship to party</summary>
+        <div class="fields">
+          <div class="field wide"><label for="shipName">Name</label><input id="shipName" data-key="shipName"></div>
+          <div class="field wide"><label for="shipAddress">Address</label><textarea id="shipAddress" data-key="shipAddress"></textarea></div>
+          <div class="field wide"><label for="shipTax">GSTIN</label><input id="shipTax" data-key="shipTax"></div>
+          <div class="field"><label for="shipCountry">Country</label><input id="shipCountry" data-key="shipCountry"></div>
+          <div class="field"><label for="shipCode">Code</label><input id="shipCode" data-key="shipCode"></div>
+        </div>
+      </details>
+      <details open="">
+        <summary>Products</summary>
+        <div class="fields" id="itemFields"><div class="item-card"><div class="item-title"><span>Product 1</span></div><div class="item-grid"><div class="field wide"><label>Description</label><textarea data-item="0" data-prop="description">10K Gold Jewellery Studded with Diamonds
+2.67 carats and Net Gold
+3.900 Gms</textarea></div><div class="field"><label>HSN code</label><input data-item="0" data-prop="hsn" value="711319"></div><div class="field"><label>Quantity / grams</label><input type="number" min="0" step="0.001" data-item="0" data-prop="qty" value="4.410"></div><div class="field"><label>Rate</label><input type="number" min="0" step="0.01" data-item="0" data-prop="rate" value="9783.13"></div><div class="field"><label>Discount amount</label><input type="number" min="0" step="0.01" data-item="0" data-prop="discount" value="0"></div></div></div><button class="add-item" id="addItem" type="button">+ Add another product</button></div>
+      </details>
+      <details>
+        <summary>Company and bank details</summary>
+        <div class="fields">
+          <div class="field wide"><label for="companyName">Company name</label><input id="companyName" data-key="companyName"></div>
+          <div class="field wide"><label for="companyAddress">Company address</label><input id="companyAddress" data-key="companyAddress"></div>
+          <div class="field"><label for="companyPhone">Telephone</label><input id="companyPhone" data-key="companyPhone"></div>
+          <div class="field"><label for="companyGstin">Company GSTIN</label><input id="companyGstin" data-key="companyGstin"></div>
+          <div class="field wide"><label for="bankName">Bank name</label><input id="bankName" data-key="bankName"></div>
+          <div class="field wide"><label for="bankAccount">Bank account</label><input id="bankAccount" data-key="bankAccount"></div>
+          <div class="field wide"><label for="bankIfsc">Bank IFSC</label><input id="bankIfsc" data-key="bankIfsc"></div>
+        </div>
+      </details>
+    </aside>
+
+    <section class="preview-area" aria-label="Invoice preview">
+      <div class="paper-stage" id="paperStage" style="width: 204px; height: 0px;">
+      <div class="paper-wrap" id="paperWrap" style="transform: scale(0.25);">
+        <article class="invoice-sheet" id="invoiceSheet">
+          <div class="invoice-border">
+            <section class="company-head">
+              <h2 data-out="companyName">SATYAM DIAMOND</h2>
+              <p data-out="companyAddress">3rd, 314, MAVANI SHOPPING CENTER, MINI BAZAR, VARACHHA ROAD,SURAT-395006</p>
+              <p>Tel: <span data-out="companyPhone">+91 9714520004</span></p>
+              <p>GSTIN: <span data-out="companyGstin">24AENFS2640R1ZE</span></p>
+            </section>
+            <div class="rule-gap"></div>
+            <div class="invoice-title">INVOICE</div>
+            <section class="two-col">
+              <div class="meta-row"><div>Invoice No: <span data-out="invoiceNo">E5-26-27/69</span></div><div>State: <span data-out="sellerState">GUJRAT</span></div></div>
+              <div class="meta-row"><div>Date of Issue: <span data-out="issueDate">25-08-2026</span></div><div>State Code:<span data-out="sellerStateCode">24</span></div></div>
+            </section>
+            <section class="party-grid">
+              <div class="party">
+                <h3>Bill to Party</h3>
+                <div class="party-main" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">Name: <span data-out="billName" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">16724094 CANADA INC.</span><br>Address: <span data-out="billAddress" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">8751 COLLIN MCKINNEY PARKWAY,MCKINNEY, TX 75070
+C:-(+1)-226-637-2286</span></div>
+                <div class="party-tax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">GSTIN/HST: <span data-out="billTax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">#719976227RT0001</span></div>
+                <div class="party-state" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">State: <span data-out="billState" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">ON</span><br>COUNTRY: <span data-out="billCountry" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">CANADA</span></div>
+              </div>
+              <div class="party">
+                <h3>Ship to Party</h3>
+                <div class="party-main" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">Name: <span data-out="shipName" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">JAKERION WARE</span><br>Address: <span data-out="shipAddress" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">4756 WINE RIDGE LN
+BIRMINGHAM, AL 35244-2430
+UNITED STATES</span></div>
+                <div class="party-tax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">GSTIN: <span data-out="shipTax" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;"></span></div>
+                <div class="party-state" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">COUNTRY: <span data-out="shipCountry" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;">USA</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Code <span data-out="shipCode" style="font-family: Arial, Helvetica, sans-serif !important; font-size: 11px !important; line-height: 1.3 !important; font-weight: 700 !important;"></span></div>
+              </div>
+            </section>
+            <table class="items" aria-label="Invoice items">
+              <thead><tr><th class="c-num">Sr.No</th><th class="c-desc">Product Description</th><th class="c-hsn">HSN<br>Code</th><th class="c-qty">QTY GMS</th><th class="c-rate">Rate</th><th class="c-amount">Amount</th><th class="c-discount">Discount</th><th class="c-value">Value of supply</th></tr></thead>
+              <tbody id="invoiceRows"><tr class="product-row"><td class="c-num">1</td><td class="c-desc">10K Gold Jewellery Studded with Diamonds
+2.67 carats and Net Gold
+3.900 Gms</td><td class="c-hsn">711319</td><td class="c-qty">4.410</td><td class="c-rate">9783.13</td><td class="c-amount"></td><td class="c-discount"></td><td class="c-value">43143.60</td></tr></tbody>
+              <tbody>
+                <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr class="blank"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr class="summary-row"><td></td><td></td><td></td><td></td><td></td><td>Amount</td><td></td><td class="c-value" id="subtotalOut">43143.60</td></tr>
+                <tr class="summary-row"><td></td><td></td><td></td><td></td><td></td><td>Add:</td><td>IGST</td><td class="c-value" id="taxOut">1294.31</td></tr>
+                <tr class="summary-row"><td></td><td colspan="1">Rounding Off</td><td></td><td></td><td></td><td></td><td></td><td class="c-value" id="roundingOut">0.09</td></tr>
+                <tr class="total-row"><td colspan="3" class="total-label">TOTAL</td><td class="c-qty" id="qtyOut">4.410</td><td></td><td></td><td></td><td class="c-value" id="totalOut">44438.00</td></tr>
+              </tbody>
+            </table>
+            <div class="words">Total&nbsp; Invoice Amount&nbsp; (In words)&nbsp; :&nbsp; <span id="wordsOut">Forty Four Thousand Four Hundred Thirty Eight Rupees Only</span></div>
+            <section class="footer">
+              <div class="bank">
+                <div class="bank-cap"></div>
+                <p>Bank Name :&nbsp; <span data-out="bankName">AXIS BANK LTD</span></p>
+                <p>Bank A/C: <span data-out="bankAccount">921020046798361</span></p>
+                <p>Bank IFSC: <span data-out="bankIfsc">UTIB0000848</span></p>
+              </div>
+              <div class="cert">
+                <div class="cert-note">Certified that the particular given above are true and correct</div>
+                <img class="signature-image" src="signature.png" alt="For SATYAM DIAMOND authorised signature">
+              </div>
+            </section>
+          </div>
+        </article>
+      </div></div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    const sample = {
+      invoiceNo:'E5-26-27/69', issueDate:'25-08-2026', sellerState:'GUJRAT', sellerStateCode:'24', taxRate:'3',
+      billName:'NIK DIAMOND & JEWELRY LLC', billAddress:'8751 COLLIN MCKINNEY PARKWAY, \n MCKINNEY, TX 75070', billTax:'', billState:'', billCountry:'',
+      shipName:'DAVID JOVANCHEVICH', shipAddress:'114 RUE JOSEPH-BRESSE #4\n CHAMBLY,QC J3L 5S8,\nCANADA', shipTax:'', shipCountry:'Canada', shipCode:'',
+      companyName:'SATYAM DIAMOND', companyAddress:'3rd, 314, MAVANI SHOPPING CENTER, MINI BAZAR, VARACHHA ROAD,SURAT-395006', companyPhone:'+91 9714520004', companyGstin:'24AENFS2640R1ZE',
+      bankName:'AXIS BANK LTD', bankAccount:'921020046798361', bankIfsc:'UTIB0000848',
+      items:[{description:'10K Gold Jewellery Studded with Diamonds\n2.67 carats and Net Gold\n3.900 Gms', hsn:'711319', qty:'4.410', rate:'9783.13', discount:'0'}]
+    };
+    let state = structuredClone(sample);
+    const money = n => (Number(n)||0).toFixed(2);
+    const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+    function amountWords(n) {
+      n = Math.round(Number(n)||0);
+      if (n === 0) return 'Zero Rupees Only';
+      const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+      const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+      const under100 = x => x < 20 ? ones[x] : `${tens[Math.floor(x/10)]}${x%10?' '+ones[x%10]:''}`;
+      const under1000 = x => `${x>=100?ones[Math.floor(x/100)]+' Hundred ':''}${x%100?under100(x%100):''}`.trim();
+      const parts=[];
+      const units=[[10000000,'Crore'],[100000,'Lakh'],[1000,'Thousand']];
+      units.forEach(([value,label]) => { if(n>=value){ const count=Math.floor(n/value); parts.push(under1000(count),label); n%=value; } });
+      if(n) parts.push(under1000(n));
+      return `${parts.join(' ')} Rupees Only`;
+    }
+
+    function itemAmount(item) { return (Number(item.qty)||0) * (Number(item.rate)||0); }
+    function itemValue(item) { return itemAmount(item) - (Number(item.discount)||0); }
+
+    function renderItemFields() {
+      const root=document.getElementById('itemFields');
+      root.innerHTML=state.items.map((item,i)=>`<div class="item-card"><div class="item-title"><span>Product ${i+1}</span>${state.items.length>1?`<button class="remove" type="button" data-remove="${i}">Remove</button>`:''}</div><div class="item-grid"><div class="field wide"><label>Description</label><textarea data-item="${i}" data-prop="description">${safe(item.description)}</textarea></div><div class="field"><label>HSN code</label><input data-item="${i}" data-prop="hsn" value="${safe(item.hsn)}"></div><div class="field"><label>Quantity / grams</label><input type="number" min="0" step="0.001" data-item="${i}" data-prop="qty" value="${safe(item.qty)}"></div><div class="field"><label>Rate</label><input type="number" min="0" step="0.01" data-item="${i}" data-prop="rate" value="${safe(item.rate)}"></div><div class="field"><label>Discount amount</label><input type="number" min="0" step="0.01" data-item="${i}" data-prop="discount" value="${safe(item.discount)}"></div></div></div>`).join('')+'<button class="add-item" id="addItem" type="button">+ Add another product</button>';
+      root.querySelectorAll('[data-item]').forEach(el=>el.addEventListener('input',e=>{ const i=Number(e.target.dataset.item); state.items[i][e.target.dataset.prop]=e.target.value; renderInvoice(); }));
+      root.querySelectorAll('[data-remove]').forEach(el=>el.addEventListener('click',e=>{ state.items.splice(Number(e.target.dataset.remove),1); renderItemFields(); renderInvoice(); }));
+      document.getElementById('addItem').addEventListener('click',()=>{ state.items.push({description:'',hsn:'711319',qty:'0.000',rate:'0.00',discount:'0'}); renderItemFields(); renderInvoice(); });
+    }
+
+    function normalizePartyFonts() {
+      document.querySelectorAll('.party-main, .party-tax, .party-state, .party-main span, .party-tax span, .party-state span').forEach(element=>{
+        element.style.setProperty('font-family','Arial, Helvetica, sans-serif','important');
+        element.style.setProperty('font-size','11px','important');
+        element.style.setProperty('line-height','1.3','important');
+        element.style.setProperty('font-weight','700','important');
+      });
+    }
+
+    function renderInvoice() {
+      document.querySelectorAll('[data-out]').forEach(el=>{ const value=state[el.dataset.out] ?? ''; el.textContent=value; });
+      normalizePartyFonts();
+      document.getElementById('invoiceRows').innerHTML=state.items.map((item,i)=>`<tr class="product-row"><td class="c-num">${i+1}</td><td class="c-desc">${safe(item.description)}</td><td class="c-hsn">${safe(item.hsn)}</td><td class="c-qty">${Number(item.qty||0).toFixed(3)}</td><td class="c-rate">${money(item.rate)}</td><td class="c-amount">${item.discount&&Number(item.discount)?money(itemAmount(item)):''}</td><td class="c-discount">${item.discount&&Number(item.discount)?money(item.discount):''}</td><td class="c-value">${money(itemValue(item))}</td></tr>`).join('');
+      const subtotal=state.items.reduce((sum,item)=>sum+itemValue(item),0);
+      const tax=subtotal*(Number(state.taxRate)||0)/100;
+      const rounded=Math.round(subtotal+tax);
+      const rounding=rounded-(subtotal+tax);
+      const qty=state.items.reduce((sum,item)=>sum+(Number(item.qty)||0),0);
+      document.getElementById('subtotalOut').textContent=money(subtotal);
+      document.getElementById('taxOut').textContent=money(tax);
+      document.getElementById('roundingOut').textContent=money(rounding);
+      document.getElementById('qtyOut').textContent=qty.toFixed(3);
+      document.getElementById('totalOut').textContent=money(rounded);
+      document.getElementById('wordsOut').textContent=amountWords(rounded);
+      requestAnimationFrame(()=>{ fitInvoiceText(); fitPreview(); });
+    }
+
+    function fitInvoiceText() {
+      const cells=document.querySelectorAll('.company-head p, .company-head h2, .meta-row > div, .items td, .words, .bank p');
+      cells.forEach(el=>{
+        if(!el.clientWidth) return;
+        el.style.fontSize='';
+        let size=parseFloat(getComputedStyle(el).fontSize);
+        while((el.scrollWidth>el.clientWidth+1 || el.scrollHeight>el.clientHeight+1) && size>9){
+          size-=0.5;
+          el.style.fontSize=`${size}px`;
+        }
+      });
+    }
+
+    function populate() {
+      document.querySelectorAll('[data-key]').forEach(el=>{ el.value=state[el.dataset.key] ?? ''; el.oninput=e=>{ state[e.target.dataset.key]=e.target.value; renderInvoice(); }; });
+      renderItemFields(); renderInvoice();
+    }
+
+    function fitPreview() {
+      const wrap=document.getElementById('paperWrap');
+      const stage=document.getElementById('paperStage');
+      if(window.innerWidth>1100){ wrap.style.transform='none'; stage.style.width='816px'; stage.style.height='auto'; return; }
+      const area=document.querySelector('.preview-area');
+      const scale=Math.max(.25,Math.min(1,(area.clientWidth-12)/816));
+      wrap.style.transform=`scale(${scale})`;
+      stage.style.width=`${816*scale}px`;
+      stage.style.height=`${document.getElementById('invoiceSheet').offsetHeight*scale}px`;
+    }
+    function setMobileView(showPreview) {
+      document.body.classList.toggle('show-preview',showPreview);
+      document.getElementById('editTab').classList.toggle('active',!showPreview);
+      document.getElementById('previewTab').classList.toggle('active',showPreview);
+      document.getElementById('editTab').setAttribute('aria-selected',String(!showPreview));
+      document.getElementById('previewTab').setAttribute('aria-selected',String(showPreview));
+      if(showPreview) requestAnimationFrame(()=>{ fitInvoiceText(); fitPreview(); });
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    document.getElementById('editTab').addEventListener('click',()=>setMobileView(false));
+    document.getElementById('previewTab').addEventListener('click',()=>setMobileView(true));
+    document.getElementById('printBtn').addEventListener('click',()=>{
+      normalizePartyFonts();
+      fitInvoiceText();
+      window.print();
+    });
+    document.getElementById('downloadBtn').addEventListener('click',async event=>{
+      const button=event.currentTarget;
+      if(typeof html2pdf!=='function') {
+        alert('PDF download could not load. Please check your internet connection and try again.');
+        return;
+      }
+      const originalText=button.textContent;
+      button.disabled=true;
+      button.textContent='Creating PDF...';
+      try {
+        normalizePartyFonts();
+        fitInvoiceText();
+        const signature=document.querySelector('.signature-image');
+        if(signature&&!signature.complete&&signature.decode) await signature.decode();
+        const invoiceName=String(state.invoiceNo||'invoice').replace(/[^a-z0-9_-]+/gi,'-');
+        await html2pdf().set({
+          margin:0,
+          filename:`SATYAM-DIAMOND-${invoiceName}.pdf`,
+          image:{type:'jpeg',quality:0.98},
+          html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',scrollX:0,scrollY:0},
+          jsPDF:{unit:'in',format:'letter',orientation:'portrait'},
+          pagebreak:{mode:['avoid-all','css','legacy']}
+        }).from(document.getElementById('invoiceSheet')).save();
+      } catch(error) {
+        alert('The PDF could not be created. Please try Print / Save PDF instead.');
+      } finally {
+        button.disabled=false;
+        button.textContent=originalText;
+      }
+    });
+    document.getElementById('resetBtn').addEventListener('click',()=>{ state=structuredClone(sample); populate(); });
+    window.addEventListener('resize',fitPreview);
+    window.addEventListener('beforeprint',fitInvoiceText);
+    populate();
+  </script>
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"></grammarly-desktop-integration></html>
